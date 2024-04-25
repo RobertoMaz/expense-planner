@@ -1,13 +1,58 @@
 <script setup>
-  import { ref } from "vue";
+  import { ref, reactive } from "vue";
   import Budget  from "./components/Budget.vue"
-  import BudgetManagement from "./components/BudgetManagement.vue";
+  import BudgetManagement from "./components/BudgetManagement.vue"
+  import ModalView from './components/ModalView.vue'
+  import ExpenseList from "./components/ExpenseList.vue";
+  import iconNewExpense from './assets/img/new-expense.svg'
 
+  const available = ref(0)
   const budgetState = ref(0)
+  const expenses = ref([])
+  const modal = reactive({
+    showModal: false,
+    animateModal: false
+  })
+  const expense = reactive({
+    id: null,
+    name: '',
+    quantity: '',
+    category: '',
+    date: Date.now()
+  })
+
+  const hideModal = () => {
+    modal.animateModal = false
+    setTimeout(() => {
+      modal.showModal = false
+    },300)
+
+  }
+
+  const saveExpense = () => {
+    expenses.value.push({...expense, id:self.crypto.randomUUID()})
+    hideModal()
+    Object.assign(expense, {
+      id: null,
+      name: '',
+      quantity: '',
+      category: '',
+      date: Date.now()
+    })
+  }
 
   const setBudget = (quantity) => {
     budgetState.value = quantity
+    available.value = quantity
   }
+  
+  const showModal = () => {
+    modal.showModal = true
+    setTimeout(() => {
+      modal.animateModal = true
+    },300)
+  }
+
 </script>
 
 <template>
@@ -22,11 +67,37 @@
         <BudgetManagement 
           v-else
           :budgetState="budgetState"
+          :available="available"
         />
 
       </div>
     </header>
-
+    <main v-if="budgetState > 0">
+      <div class="container expense-list">
+        <h2>{{ expenses.length > 0 ? 'Gastos' : 'No hay gastos' }}</h2>
+        <ExpenseList 
+          v-for="expense in expenses"
+          :key="expense.id"
+          :expense="expense"
+        />
+      </div>
+      <div class="create-expense">
+        <img 
+          :src="iconNewExpense" 
+          alt="icon new expense"
+          @click="showModal"
+        />
+      </div>
+      <ModalView 
+        v-if="modal.showModal"
+        @hide-modal="hideModal"
+        @save-expense="saveExpense"
+        :modal="modal"
+        v-model:name="expense.name"
+        v-model:quantity="expense.quantity"
+        v-model:category="expense.category"
+      />
+    </main>
   </div>
 </template>
 
@@ -86,6 +157,31 @@
     margin-top: -5rem;
     transform: translateY(5rem);
     padding: 5rem ;
+  }
+
+  .create-expense {
+    position: fixed;
+    bottom: 5rem;
+    right: 5rem;
+  }
+  
+  .create-expense img{
+    width: 5rem;
+    transition: opacity 0.3s
+  }
+
+  .create-expense img:hover{
+    cursor: pointer;
+    opacity: 0.5;
+  }
+
+  .expense-list {
+    margin-top: 10rem;
+  }
+
+  .expense-list h2{
+    font-weight: 900;
+    color: var(--gray-dark);
   }
 
   .shadow {

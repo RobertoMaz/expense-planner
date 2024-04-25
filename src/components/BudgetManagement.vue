@@ -1,8 +1,13 @@
 <script setup>
     import image from '../assets/img/graphic.jpg'
+    import { formatQuantity } from '../helpers'
 
     const props = defineProps({
         budgetState: {
+            type: Number,
+            required: true
+        },
+        available: {
             type: Number,
             required: true
         }
@@ -21,10 +26,10 @@
                 Resetear App
             </button>
             <p>
-                <span>Presupuesto:</span> ${{ budgetState }}
+                <span>Presupuesto:</span> {{ formatQuantity(budgetState) }}
             </p>
             <p>
-                <span>Disponible:</span> ${{ budgetState }}
+                <span>Disponible:</span> {{ formatQuantity(available) }}
             </p>
             <p>
                 <span>Gastado:</span> $0
@@ -55,7 +60,7 @@
     }
 
     .reset-app {
-        background-color: #dd3838;
+        background-color: #e04545;
         border: none;
         padding: 1rem;
         width: 100%;
