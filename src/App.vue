@@ -21,6 +21,7 @@
         />
         <BudgetManagement 
           v-else
+          :budgetState="budgetState"
         />
 
       </div>
