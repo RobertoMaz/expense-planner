@@ -10,6 +10,10 @@
             type: Object,
             required: true 
         },
+        id: {
+            type: [String, null],
+            required: true 
+        },
         name: {
             type: String,
             required: true 
@@ -21,13 +25,19 @@
         category: {
             type: String,
             required: true 
+        },
+        available: {
+            type: Number,
+            required: true 
         }
     })
 
-    const emit = defineEmits(['hide-modal', 'update:name', 'update:quantity', 'update:category', 'save-expense'])
+    const emit = defineEmits(['hide-modal', 'update:name', 'update:quantity', 'update:category', 'save-expense','delete-expense'])
+
+    const oldQuantity = props.quantity
 
     const addExpense = () => {
-        const {name, quantity, category} = props
+        const {name, quantity, category, available, id} = props
         if([name,quantity, category].includes('')){
             error.value = 'Los campos no pueden estar vacios'
             setTimeout(() => {
@@ -44,6 +54,24 @@
             return
         }
 
+        if(id){
+            if(quantity > oldQuantity + available){
+                error.value = 'Has exedido el presupuesto declarado'
+                setTimeout(() => {
+                    error.value = ''
+                }, 3000)
+                return
+            }
+        } else { 
+            if (quantity > available){
+                error.value = 'Has exedido el presupuesto declarado'
+                setTimeout(() => {
+                    error.value = ''
+                }, 3000)
+                return
+            }
+        }
+
         emit('save-expense')
     }
 </script>
@@ -57,13 +85,13 @@
         </div>
         <div 
             class="container container-form"
-            :class="[modal.animateModal ? 'animate' : '']"
+            :class="{animate: modal.animateModal}"
             >
             <form 
                 class="new-expense"
                 @submit.prevent="addExpense"
                 >
-                <legend>Añadir gasto</legend>
+                <legend>{{ id ? 'Guardar Cambios' : 'Añadir Gasto' }}</legend>
                 <AlertMessage v-if="error">{{ error }}</AlertMessage>
                 <div class="field">
                     <label for="name">Nombre gasto:</label>
@@ -103,15 +131,38 @@
                 </div>
                 <input 
                 type="submit"
-                value="Añadir gasto"    
+                :value="[id ? 'Guardar Cambios' : 'Añadir Gasto']"    
                 >
             </form>
+            <button
+                type="button"
+                class="btn-eliminar"
+                v-if="id"
+                @click="$emit('delete-expense')"
+            >
+                Eliminar Gasto
+            </button>
         </div>
     </div>
 </template>
 
 <style scoped>
-    
+    .btn-eliminar {
+        border: none;
+        padding: 1rem;
+        width: 100%;
+        background-color: #ef4444;
+        font-weight: 700;
+        font-size: 2rem;
+        color: var(--white);
+        margin-top: 2rem;
+        border-radius: 1rem;
+    }
+
+    .btn-eliminar:hover {
+       cursor: pointer;
+       background-color: #d13636;
+    }
 
     .close-modal {
         position: absolute;

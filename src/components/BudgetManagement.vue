@@ -10,6 +10,10 @@
         available: {
             type: Number,
             required: true
+        },
+        spent: {
+            type: Number,
+            required: true
         }
     })
 </script>
@@ -32,7 +36,7 @@
                 <span>Disponible:</span> {{ formatQuantity(available) }}
             </p>
             <p>
-                <span>Gastado:</span> $0
+                <span>Gastado:</span> {{ formatQuantity(spent) }}
             </p>
         </div>
     </div>

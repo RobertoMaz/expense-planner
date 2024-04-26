@@ -1,14 +1,17 @@
 <script setup>
-  import { ref, reactive } from "vue";
+  import { ref, reactive, watch } from "vue";
   import Budget  from "./components/Budget.vue"
   import BudgetManagement from "./components/BudgetManagement.vue"
   import ModalView from './components/ModalView.vue'
-  import ExpenseList from "./components/ExpenseList.vue";
+  import ExpenseList from "./components/ExpenseList.vue"
+  import FilterExpense from "./components/FilterExpense.vue"
   import iconNewExpense from './assets/img/new-expense.svg'
 
   const available = ref(0)
   const budgetState = ref(0)
   const expenses = ref([])
+  const spent = ref(0)
+  const filter = ref('')
   const modal = reactive({
     showModal: false,
     animateModal: false
@@ -21,6 +24,29 @@
     date: Date.now()
   })
 
+  watch(expenses, () => {
+    const totalExpense = expenses.value.reduce((total, oneExpense) => oneExpense.quantity + total, 0)
+    spent.value = totalExpense
+    available.value = budgetState.value - totalExpense
+  }, {
+    deep: true
+  })
+
+  watch(modal, () => {
+    if(!modal.showModal){
+      resetStateExpense()
+    }
+  }, {
+    deep: true
+  })
+
+  const deleteExpense = () => {
+    if(confirm('¿Desea ELIMINAR el gasto?')){
+      expenses.value = expenses.value.filter(expenseState => expenseState.id !== expense.id)
+      hideModal()
+    }
+  }
+
   const hideModal = () => {
     modal.animateModal = false
     setTimeout(() => {
@@ -29,9 +55,7 @@
 
   }
 
-  const saveExpense = () => {
-    expenses.value.push({...expense, id:self.crypto.randomUUID()})
-    hideModal()
+  const resetStateExpense = () => {
     Object.assign(expense, {
       id: null,
       name: '',
@@ -41,9 +65,27 @@
     })
   }
 
+  const saveExpense = () => {
+    if(expense.id){
+      const {id} = expense
+      const index = expenses.value.findIndex(expense => expense.id === id)
+      expenses.value[index] = {...expense}
+    } else {
+      expenses.value.push({...expense, id:self.crypto.randomUUID()})
+    }
+    hideModal()
+    resetStateExpense()
+  }
+
+  const selectExpense = (id) => {
+    showModal()
+    const expenseFilter = expenses.value.filter(expense => expense.id === id)[0]
+    Object.assign(expense, expenseFilter)
+  }
+
   const setBudget = (quantity) => {
     budgetState.value = quantity
-    available.value = quantity
+    available.value = quantity - spent.value
   }
   
   const showModal = () => {
@@ -56,7 +98,9 @@
 </script>
 
 <template>
-  <div>
+  <div
+    :class="{setModal: modal.showModal}"
+  >
     <header>
       <h1>Planificador de gastos</h1>
       <div class="container-header container shadow">
@@ -68,17 +112,23 @@
           v-else
           :budgetState="budgetState"
           :available="available"
+          :spent="spent"
         />
 
       </div>
     </header>
     <main v-if="budgetState > 0">
+      <FilterExpense 
+        v-if="expenses.length > 0"
+        v-model:filter="filter"
+      />
       <div class="container expense-list">
         <h2>{{ expenses.length > 0 ? 'Gastos' : 'No hay gastos' }}</h2>
         <ExpenseList 
           v-for="expense in expenses"
           :key="expense.id"
           :expense="expense"
+          @select-expense="selectExpense"
         />
       </div>
       <div class="create-expense">
@@ -92,7 +142,10 @@
         v-if="modal.showModal"
         @hide-modal="hideModal"
         @save-expense="saveExpense"
+        @delete-expense="deleteExpense"
         :modal="modal"
+        :available="available"
+        :id="expense.id"
         v-model:name="expense.name"
         v-model:quantity="expense.quantity"
         v-model:category="expense.category"
@@ -176,12 +229,17 @@
   }
 
   .expense-list {
-    margin-top: 10rem;
+    margin-top: 5rem;
   }
 
   .expense-list h2{
     font-weight: 900;
     color: var(--gray-dark);
+  }
+
+  .setModal {
+    overflow: hidden;
+    height: 100vh;
   }
 
   .shadow {
