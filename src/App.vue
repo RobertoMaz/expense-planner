@@ -1,5 +1,5 @@
 <script setup>
-  import { ref, reactive, watch } from "vue";
+  import { ref, reactive, watch, computed, onMounted } from "vue";
   import Budget  from "./components/Budget.vue"
   import BudgetManagement from "./components/BudgetManagement.vue"
   import ModalView from './components/ModalView.vue'
@@ -28,6 +28,8 @@
     const totalExpense = expenses.value.reduce((total, oneExpense) => oneExpense.quantity + total, 0)
     spent.value = totalExpense
     available.value = budgetState.value - totalExpense
+
+    localStorage.setItem('expenses', JSON.stringify(expenses.value))
   }, {
     deep: true
   })
@@ -40,6 +42,23 @@
     deep: true
   })
 
+  watch(budgetState, () => {
+    localStorage.setItem('budget', budgetState.value)
+  })
+
+  onMounted(() => {
+    const budgetStorage = localStorage.getItem('budget')
+    if(budgetStorage){
+      budgetState.value = Number(budgetStorage)
+      available.value = Number(budgetStorage)
+    }
+
+    const expensesStorage = localStorage.getItem('expenses')
+    if(expensesStorage){
+      expenses.value = JSON.parse(expensesStorage)
+    }
+  })
+
   const deleteExpense = () => {
     if(confirm('¿Desea ELIMINAR el gasto?')){
       expenses.value = expenses.value.filter(expenseState => expenseState.id !== expense.id)
@@ -47,12 +66,26 @@
     }
   }
 
+  const filterExpenses = computed(() => {
+    if(filter.value){
+      return expenses.value.filter(expenseState => expenseState.category === filter.value)
+    }
+    return expenses.value
+  })
+
   const hideModal = () => {
     modal.animateModal = false
     setTimeout(() => {
       modal.showModal = false
     },300)
 
+  }
+
+  const resetApp = () => {
+    if(confirm('¿Deseas reiniciar presupuestos y gastos?')){
+      expenses.value = []
+      budgetState.value = 0
+    }
   }
 
   const resetStateExpense = () => {
@@ -95,6 +128,8 @@
     },300)
   }
 
+  
+
 </script>
 
 <template>
@@ -113,6 +148,7 @@
           :budgetState="budgetState"
           :available="available"
           :spent="spent"
+          @reset-app="resetApp"
         />
 
       </div>
@@ -123,9 +159,9 @@
         v-model:filter="filter"
       />
       <div class="container expense-list">
-        <h2>{{ expenses.length > 0 ? 'Gastos' : 'No hay gastos' }}</h2>
+        <h2>{{ filterExpenses.length > 0 ? 'Gastos' : 'No hay gastos' }}</h2>
         <ExpenseList 
-          v-for="expense in expenses"
+          v-for="expense in filterExpenses"
           :key="expense.id"
           :expense="expense"
           @select-expense="selectExpense"
@@ -229,7 +265,7 @@
   }
 
   .expense-list {
-    margin-top: 5rem;
+    margin-top: 6rem;
   }
 
   .expense-list h2{
