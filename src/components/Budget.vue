@@ -14,7 +14,6 @@
             setTimeout(() => {
                 error.value = ''
             }, 3000)
-
             return
         } 
 
@@ -88,6 +87,4 @@
         display: grid;
         gap: 2rem;
     }
-
-    
 </style>

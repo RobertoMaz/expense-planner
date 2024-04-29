@@ -27,6 +27,7 @@
 
     defineEmits(['select-expense'])
 </script>
+
 <template>
     <div class="expense shadow">
         <div class="content">
@@ -52,7 +53,6 @@
         <p class="quantity">{{ formatQuantity(expense.quantity) }}</p>
     </div>
 </template>
-
 
 <style scoped>
     .category {
@@ -105,5 +105,4 @@
         font-weight: 900;
         margin: 0;
     }
-
 </style>

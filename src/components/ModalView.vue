@@ -75,6 +75,7 @@
         emit('save-expense')
     }
 </script>
+
 <template>
     <div class="modal">
         <div class="close-modal">
@@ -90,7 +91,7 @@
             <form 
                 class="new-expense"
                 @submit.prevent="addExpense"
-                >
+            >
                 <legend>{{ id ? 'Guardar Cambios' : 'Añadir Gasto' }}</legend>
                 <AlertMessage v-if="error">{{ error }}</AlertMessage>
                 <div class="field">
@@ -101,17 +102,17 @@
                         placeholder="Añade el nombre del gasto"
                         :value="name"
                         @input="$emit('update:name', $event.target.value)"
-                        >
+                    >
                 </div>
                     <div class="field">
                         <label for="quantity">Cantidad:</label>
                         <input 
-                        type="number"
-                        id="quantity"
-                        placeholder="Añade la cantidad del gasto, ej: 300"
-                        :value="quantity"
-                        @input="$emit('update:quantity', +$event.target.value)"
-                    >
+                            type="number"
+                            id="quantity"
+                            placeholder="Añade la cantidad del gasto, ej: 300"
+                            :value="quantity"
+                            @input="$emit('update:quantity', +$event.target.value)"
+                        >
                 </div>
                 <div class="field">
                     <label for="category">Cantegoría:</label>
@@ -130,8 +131,8 @@
                     </select>
                 </div>
                 <input 
-                type="submit"
-                :value="[id ? 'Guardar Cambios' : 'Añadir Gasto']"    
+                    type="submit"
+                    :value="[id ? 'Guardar Cambios' : 'Añadir Gasto']"    
                 >
             </form>
             <button
@@ -242,8 +243,5 @@
         background-color: #1646c9;
         cursor: pointer;
     }
-
-    
-    
 </style>
 

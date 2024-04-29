@@ -1,8 +1,8 @@
 <script setup>
- 
     defineProps(['filter'])
     defineEmits(['update:filter'])
 </script>
+
 <template>
     <div class="filters shadow container">
         <form>

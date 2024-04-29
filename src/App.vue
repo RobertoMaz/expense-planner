@@ -78,7 +78,6 @@
     setTimeout(() => {
       modal.showModal = false
     },300)
-
   }
 
   const resetApp = () => {
@@ -127,9 +126,6 @@
       modal.animateModal = true
     },300)
   }
-
-  
-
 </script>
 
 <template>
@@ -150,7 +146,6 @@
           :spent="spent"
           @reset-app="resetApp"
         />
-
       </div>
     </header>
     <main v-if="budgetState > 0">
@@ -201,7 +196,7 @@
   }
 
   html {
-    font-size: 62.5%;
+    font-size: 55%;
     box-sizing: border-box;
   }
 
