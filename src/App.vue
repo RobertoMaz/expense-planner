@@ -187,7 +187,7 @@
 
 <style>
   :root {
-    --blue: #3b82f6;
+    --blue: #3968b4;
     --white: #FFF;
     --gray-light: #eeeeee;
     --gray: #94a3b8;
